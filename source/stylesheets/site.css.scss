@@ -1,0 +1,30 @@
+@import "compass";
+
+$boxWidth:500px;
+$boxHeight:200px;
+
+#content {
+  // float:left;
+  margin:10px 0 50px;
+  background:red;
+  color:white;
+  height:$boxHeight;
+  width:$boxWidth;
+  text-align:center;
+  vertical-align:middle;
+  font-size:50px;
+  line-height:$boxHeight;
+  
+  .slide {
+   text-align:center;
+  }
+  
+  &:hover {
+    cursor:pointer;
+  }
+}
+
+#content-2 {
+  @extend #content;
+  background:blue;
+}

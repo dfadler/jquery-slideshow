@@ -1,0 +1,17 @@
+<% content_for :head do %>
+  <title>A Simple Jquery Slideshow</title>
+<% end%>
+
+<!-- <h1>A Simple Jquery Slideshow</h1> -->
+
+<section id="content">
+  <% data.slides.slides.each do |s| %>
+    <article class="slide"><img src="<%= s %>" /></article>
+  <% end %>
+</section>
+
+<section id="content-2">
+  <% data.slides.slides.each do |s| %>
+    <article class="slide"><img src="<%= s %>" /></article>
+  <% end %>
+</section>

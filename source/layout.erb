@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html class="no-js">
+  <head>
+    <meta charset="utf-8">
+    <!-- Always force latest IE rendering engine (even in intranet) & Chrome Frame -->
+    <meta content="IE=edge,chrome=1" http-equiv="X-UA-Compatible">
+
+    <%= stylesheet_link_tag "site" %>
+    <%= javascript_include_tag "modernizr" %>
+    <%= yield_content :head %>
+  </head>
+  
+  <body class="<%= page_classes %>">
+
+    <section id="main" role="main">
+      <%= yield %>
+    </section>
+    
+    <%= javascript_include_tag "libraries","jquery.slideshow","site" %>
+  </body>
+</html>
