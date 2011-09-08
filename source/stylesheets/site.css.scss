@@ -17,6 +17,12 @@ $boxHeight:200px;
   
   .slide {
    text-align:center;
+   
+   img {
+     height:$boxHeight;
+     width:$boxWidth;
+   }
+   
   }
   
   &:hover {
