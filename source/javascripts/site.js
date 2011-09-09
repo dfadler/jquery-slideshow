@@ -15,6 +15,7 @@ $(document).ready(function(){
 
 	$('#content').slideshow({
 		captionAnimation: 'slide',
+		captions:'.caption',
 		containerEvent:[false,true,true],
 		controls:[true,true],
 		loop:false
@@ -22,6 +23,7 @@ $(document).ready(function(){
 
 	$('#content-2').slideshow({
 		animation:'slide',
+		captions:'.caption',
 		controls:[true,true],
 		controlEvent: false
 	});

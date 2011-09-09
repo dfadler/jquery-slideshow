@@ -31,6 +31,7 @@
 				currentSlide = slideshow.currentSlide,
 				lastSlide = slideshow.lastSlide,
 				captions = slideshow.captions,
+				captionHeight = null,
 				controlPanel = slideshow.controlPanel,
 				controlsEvent = opts.controlEvent ? 'click'  : 'mouseover',
 				slideshowActive = null,
@@ -90,21 +91,37 @@
 				break;
 			}	
 			
+			if (opts.captionAnimation) {
+				
+				captions = $('.caption', slides);
+				
+				$(captions[0]).addClass('active');
+				// Sets up captions for configured animations
+				switch (opts.captionAnimation) {
+					case 'slide':
+						$(slides)
+							.css({'overflow':'hidden'});
+						captionHeight = parseInt($(captions).css('padding-top')) * 2 + $(captions).height() ;
+						$(captions)
+							.css({'bottom':-captionHeight});
+						break;
+					default:
+						$(captions)
+							.css({
+								'opacity':0
+							});
+						break;
+				}	
+			}
+			
+			
+			
 			// Slideshow method to add control panel and corresponding property
 			Slideshow.prototype.controls = function () {
 				$(container)
 					.append('<div class="control-panel" />');
 				this.controlPanel = $('.control-panel', container);
 			};
-			
-			switch (opts.captionAnimation) {
-				case 'slide':
-					
-					break;
-				default:
-					
-					break;
-			}
 
 			// Disables next/prev if loop is false and have reached the end of the slideshow
 			function toggleNextPrev(obj, b) {
@@ -117,7 +134,7 @@
 				}
 			}
 			
-			// If controls not false control panel is build
+			// Builds control panel
 			if (opts.controls) {
 				
 				slideshow.controls();
@@ -131,8 +148,6 @@
 						'left': 0,
 						'height': contHeight,
 						'width': contWidth,
-						'background-color': 'none',
-
 					});
 				
 				// Adds controls to control panel
@@ -175,19 +190,64 @@
 					});
 			}
 			
+			
+			
+			function toggleCaptions(bol) {
+				if (opts.captions) {
+					switch (opts.captionAnimation) {
+
+						case 'slide':
+							bol === true ? bol = 0 : bol = -captionHeight;
+							$(captions[currentSlide])
+								.stop(true)
+								.animate({
+									'bottom':bol
+								},{duration:opts.speed}
+							);
+							break;
+						default:
+							bol === true ? bol = 1 : bol = 0;
+							if($('.stage:animated', container).length < 1) {
+								$(captions[currentSlide])
+									.stop(true)
+									.animate({
+										'opacity':bol
+									},{duration:opts.speed}
+								);
+							} else {
+								$(captions[currentSlide])
+									.stop(false)
+									.animate({
+										'opacity':bol
+									},{duration:opts.speed * 3}
+								);	
+							}
+							break;
+					}
+				}	
+			}
+			
+			
 			// Animation and class progression
 			function go(nextSlide) {
 				
 				switch (opts.animation) {
 
 				case 'slide':
+					if (captions) {
+						$(captions)
+							.removeClass('active');
+						$(captions[nextSlide])
+							.addClass('active');
+					}
 					$('.active', controlPanel)
 						.removeClass('active');
 					$('.controls .control:eq(' + nextSlide + ')', controlPanel)
 						.addClass('active');
 					$(slides)
 						.removeClass('active');
-					$(slides[nextSlide]).addClass('active');
+					$(slides[nextSlide])
+						.addClass('active');
 					$('.stage', container)
 						.stop(true)
 						.animate({
@@ -196,6 +256,13 @@
 					break;
 					
 				default:
+					if (captions) {
+						$(captions)
+							.removeClass('active');
+						$(captions[nextSlide])
+							.addClass('active');
+						toggleCaptions();	
+					}
 					$('.active', controlPanel)
 						.removeClass('active');
 					$('.controls .control:eq(' + nextSlide + ')', controlPanel)
@@ -215,10 +282,11 @@
 					break;
 				}
 			}
-
 			// Current slide increment/decrement
 			function advance(direction) {
-			
+				
+				toggleCaptions(false);
+				
 				switch (direction) {
 					
 				case 'next':
@@ -251,8 +319,11 @@
 					currentSlide >= lastSlide ? toggleNextPrev('.next', true) : toggleNextPrev('.next', false);
 					currentSlide <= 0 ? toggleNextPrev('.prev', true) : toggleNextPrev('.prev', false);
 				}
+				if ($(container).hasClass('hovering')) {
+					toggleCaptions(true);
+				}	
 			}
-			
+
 			opts.autoplay !== 0 ? slideshowActive = true : slideshowActive = false;
 
 			function next() {
@@ -279,20 +350,28 @@
 				.bind(
 					'click', 
 					function () {
+						
+						toggleCaptions(false);
+						
 						if (opts.containerEvent[0]) {
 							advance('next');
 						}
 						if (opts.containerEvent[1]) {
 							slideshowActive = false;
 						}
+						toggleCaptions(true);
 					}
 				).mouseover(function () {
 					if (opts.containerEvent[2]) {
 						stopSlideshow();
+						$(this).addClass('hovering');
+						toggleCaptions(true);
 					}
 				}).mouseleave(function () {
 					if (opts.containerEvent[2]) {
 						startSlideshow();
+						$(this).removeClass('hovering');
+						toggleCaptions(false);
 					}
 				});
 				
