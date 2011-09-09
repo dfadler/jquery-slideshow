@@ -1,17 +1,27 @@
 <% content_for :head do %>
   <title>A Simple Jquery Slideshow</title>
-<% end%>
-
+<% end %>
 <!-- <h1>A Simple Jquery Slideshow</h1> -->
-
 <section id="content" class="slideshow">
-  <% data.slides.slides.each do |s| %>
-    <article class="slide"><div style="background-color:<%= s %>;"></div></article>
+  <% 10.times do |i| %>
+    <article class="slide">
+      <div style="background-color:<%= data.slides.slides[i] %>;">
+        <div class="caption">
+          <p><%= data.slides.captions[i] %></p>
+        </div>
+      </div>
+    </article>
   <% end %>
 </section>
 
 <section id="content-2" class="slideshow">
-  <% data.slides.slides.each do |s| %>
-    <article class="slide"><div style="background-color:<%= s %>;"></div></article>
+  <% 10.times do |i| %>
+    <article class="slide">
+      <div style="background-color:<%= data.slides.slides[i] %>;">
+        <div class="caption">
+          <p><%= data.slides.captions[i] %></p>
+        </div>
+      </div>
+    </article>
   <% end %>
 </section>

@@ -6,12 +6,7 @@
 
 		return this.each(function () {
 			
-			// Function to determin whether an object has an index
-			function indexExists(arr, obj) {
-				return (arr.indexOf(obj) !== -1);
-			}
-			
-			// Slideshow object 
+			// // Slideshow object 
 			function Slideshow(cont, opts) {
 				this.container = cont;
 				this.containerWidth = $(cont).width();
@@ -22,6 +17,7 @@
 				this.slideCount = this.slides.length;
 				this.lastSlide = this.slideCount - 1;
 				this.controlPanel = null;
+				this.captions = null;
 			}
 			
 			// Slideshow property variable assignments
@@ -34,10 +30,13 @@
 				contHeight = slideshow.containerHeight,
 				currentSlide = slideshow.currentSlide,
 				lastSlide = slideshow.lastSlide,
+				captions = slideshow.captions,
 				controlPanel = slideshow.controlPanel,
-				controlsEvent = opts.controls[3] ? 'click'  : 'mouseover';
-				
-			// Determines whether animation is slide or fade	
+				controlsEvent = opts.controlEvent ? 'click'  : 'mouseover',
+				slideshowActive = null,
+				interval = null;
+
+			// Sets up slides for configured animation	
 			switch (opts.animation) {
 
 			case 'slide':
@@ -66,8 +65,7 @@
 						.css({
 							'position': 'absolute',
 							'top': 0,
-							'left': 0,
-							'z-index': 0
+							'left': 0
 						});
 
 					if (opts.autoSizeSlides) {
@@ -86,7 +84,6 @@
 							.css({'opacity': 0});
 					} else {
 						$(this)
-							.css({'z-index': 1})
 							.addClass('active');
 					}
 				});
@@ -96,17 +93,37 @@
 			// Slideshow method to add control panel and corresponding property
 			Slideshow.prototype.controls = function () {
 				$(container)
-					.append('<section class="control-panel" />');
+					.append('<div class="control-panel" />');
 				this.controlPanel = $('.control-panel', container);
 			};
+			
+			switch (opts.captionAnimation) {
+				case 'slide':
+					
+					break;
+				default:
+					
+					break;
+			}
 
+			// Disables next/prev if loop is false and have reached the end of the slideshow
+			function toggleNextPrev(obj, b) {
+				// $(obj, controlPanel).toggleClass('disabled', b);
+				
+				if (b) {
+					$(obj, controlPanel).addClass('disabled');
+				} else {
+					$(obj, controlPanel).removeClass('disabled');
+				}
+			}
+			
 			// If controls not false control panel is build
-			if (indexExists(opts.controls, true)) {
+			if (opts.controls) {
 				
 				slideshow.controls();
         
 				controlPanel = slideshow.controlPanel;
-				
+
 				$(controlPanel)
 					.css({
 						'position': 'absolute',
@@ -114,8 +131,8 @@
 						'left': 0,
 						'height': contHeight,
 						'width': contWidth,
-						'background-color': 'transparent',
-						'z-index': 99
+						'background-color': 'none',
+
 					});
 				
 				// Adds controls to control panel
@@ -138,15 +155,18 @@
 				if (opts.controls[1]) {
 					$(controlPanel)
 						.append('<div class="prev-container"><span class="prev">Prev</span></div><div class="next-container"><span class="next">Next</span></div>');
+					if (!opts.loop) {
+						toggleNextPrev('.prev', true);
+					}
 				}
 				
-				// Needed a
-				if (opts.controls[2]) {
+				// Needed for styling clickable containers if there are multiple instances of the slideshow on one page
+				if (opts.containerEvent[0]) {
 					$(container)
 						.addClass('clickable');
 				}
 			}
-			
+
 			// Sets the Slideshow container to relative if currently static
 			if ($(container).css('position') === 'static') {
 				$(container)
@@ -195,12 +215,7 @@
 					break;
 				}
 			}
-			
-			// Disables next/prev if loop is false and have reached the end of the slideshow
-			function controlToggle(e, a) {
-				a ? $(e, controlPanel).addClass('disabled') : $(e, controlPanel).removeClass('disabled');
-			}
-			
+
 			// Current slide increment/decrement
 			function advance(direction) {
 			
@@ -232,21 +247,53 @@
 					break;
 				}
 				
-				!opts.loop && currentSlide >= lastSlide || currentSlide <= 0 ? console.log('It works') : console.log("Doesn't work");
+				if (opts.controls[1] && !opts.loop) {
+					currentSlide >= lastSlide ? toggleNextPrev('.next', true) : toggleNextPrev('.next', false);
+					currentSlide <= 0 ? toggleNextPrev('.prev', true) : toggleNextPrev('.prev', false);
+				}
 			}
-	
+			
+			opts.autoplay !== 0 ? slideshowActive = true : slideshowActive = false;
+
+			function next() {
+				advance('next');
+			}
+		    
+			function prev() {
+				advance('prev');
+			}
+
+		    function startSlideshow() {
+				if (slideshowActive) {
+					interval = window.setInterval(next, opts.autoplay);
+				} 
+		    }
+
+			function stopSlideshow() {
+				window.clearInterval(interval);
+			}
+
+		    startSlideshow();
+
 			$(container)
 				.bind(
 					'click', 
 					function () {
-						if (opts.controls[2]) {
+						if (opts.containerEvent[0]) {
 							advance('next');
+						}
+						if (opts.containerEvent[1]) {
+							slideshowActive = false;
 						}
 					}
 				).mouseover(function () {
-				
+					if (opts.containerEvent[2]) {
+						stopSlideshow();
+					}
 				}).mouseleave(function () {
-				
+					if (opts.containerEvent[2]) {
+						startSlideshow();
+					}
 				});
 				
 			// Prevents control events from bubbling up
@@ -265,20 +312,24 @@
 					function () {
 						currentSlide = $(this).index();
 						advance();
+						if (opts.containerEvent[1]) {
+							slideshowActive = false;
+						}
 					}
 				);
 			
-			// Prev click
-			$('.prev', controlPanel)
-				.click(function () {
-					advance('prev');
-				});
-			
-			// Next click
-			$('.next', controlPanel)
-				.click(function () {
-					advance('next');
-				});
+			// Next and Prev click events
+			$('.prev, .next', controlPanel)
+				.click(
+					function (params) {
+						params = $(this).attr('class');
+						advance(params);
+						if (opts.containerEvent[1]) {
+							slideshowActive = false;
+						}
+					}
+				);
+
 		});
 	};
 
@@ -286,7 +337,11 @@
 	$.fn.slideshow.defaults = {
 		animation: 'fade', // Can be set to 'fade'(default) or 'slide', anything other than fade or slide will default to fade
 		autoSizeSlides: true, // Adds inline css to slides that matches the height and width of the container
-		controls: [true, false, false, true], // [controls,next/prev,clicking container advances slideshow, controls hover/click]
+		captions: null, // Selector
+		captionAnimation: 'fade',
+		containerEvent: [true, true, true], // [container click advances slideshow, stop slideshow when clicked, pauses slideshow on hover]
+		controls: [true, false], // [controls, next/prev, clicking container advances slideshow, controls hover/click]
+		controlEvent: true, // controls click/hover - true will require a control click to trigger control false will trigger on hover
 		loop: true, // Allows for the slideshow to cycle 
 		slideSelector: null, // By default the slideshow will transition all first level children, if you so desire you can pass a selector such as ".slide"
 		speed: 300, // Animation speed for slide progression
