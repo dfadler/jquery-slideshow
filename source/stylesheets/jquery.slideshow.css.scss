@@ -1,6 +1,6 @@
 .slideshow {
 	
-	&.has-container-hover {
+	&.clickable {
 		&:hover {
 			cursor:pointer;	
 		}
@@ -27,7 +27,11 @@
 			}	
 		}
 	}
-	
+	.next, .prev {
+		&.disabled {
+			visibility:hidden;
+		}
+	}
 	.next-container {
 		position:absolute;
 		top:-20px;

@@ -1,7 +1,8 @@
 $(document).ready(function(){
 
 	$('#content').slideshow({
-		controls:[true,false,false,true]
+		controls:[true,true,false,true],
+		loop:false
 	});
 
 	$('#content-2').slideshow({
