@@ -19,9 +19,10 @@
 				this.currentSlide = 0;
 				this.slideCount = this.slides.length;
 				this.lastSlide = this.slideCount - 1;
-				this.controlPanel = $('.control-panel', this.container);
+				this.controlPanel = null;
+				
 			}
-			
+
 			var that = this,
 				slideshow = new Slideshow(that, options),
 				container = slideshow.container,
@@ -31,41 +32,11 @@
 				contHeight = slideshow.containerHeight,
 				currentSlide = slideshow.currentSlide,
 				lastSlide = slideshow.lastSlide,
-				controlPanel = slideshow.controlPanel;
+				controlPanel = slideshow.controlPanel,
+				controlsEvent = opts.controls[3] ? 'click'  : 'mouseover';			
 				
-			function BuildControls() {
-
-			}
 				
-			if (indexExists(opts.controls, true)) {
-				$(container).append('<section class="control-panel" />');
-
-				$(controlPanel).css({
-					'position': 'absolute',
-					'top': 0,
-					'left': 0,
-					'height': contHeight,
-					'width': contWidth,
-					'background-color': 'transparent',
-					'z-index': 99
-				});
-
-				if (opts.controls[0]) {
-					console.log("I'm true");
-					$(controlPanel).append('<ul class="controls"></ul>');
-					$(slides).each(function (i) {
-						$('.controls',container).append('<li class="controls"><span>'+i+'</span></li>');
-					});
-				}
-
-				if (opts.controls[1]) {
-
-				}
-
-				if (opts.controls[2]) {
-
-				}
-			}
+				console.log(controlsEvent);
 				
 			switch (opts.animation) {
 
@@ -85,7 +56,7 @@
 				}
 
 				break;
-				
+
 			default:
 				if ($(slides).css('position') !== 'absolute') {
 					$(slides).css({
@@ -109,17 +80,71 @@
 					} else {
 						$(this).css({'z-index': 1}).addClass('active');
 					}
-
 				});
-				break;
-			}				
 				
+				break;
+			}	
+
+			Slideshow.prototype.controls = function (controls) {
+				$(container).append('<section class="control-panel" />');
+				this.controlPanel = $('.control-panel', container);
+			};
+
+			if (indexExists(opts.controls, true)) {
+				
+				slideshow.controls();
+        
+				controlPanel = slideshow.controlPanel;
+        
+				$(controlPanel).css({
+					'position': 'absolute',
+					'top': 0,
+					'left': 0,
+					'height': contHeight,
+					'width': contWidth,
+					'background-color': 'transparent',
+					'z-index': 99
+				});
+
+				if (opts.controls[0]) {
+					
+					$(controlPanel).append('<div class="controls-container"><ul class="controls"></ul></div>');
+					
+					$(slides).each(function (i) {
+						$('.controls', container).append('<li class="control"><span>' + i + '</span></li>');
+					});
+					
+					$(controlPanel).find('.controls .control:eq(0)').addClass('active');
+					
+				}
+
+				if (opts.controls[1]) {
+					$(controlPanel).append('<div class="prev-container"><span class="prev">Prev</span></div><div class="next-container"><span class="next">Next</span></div>');
+				}
+				
+				if (opts.controls[2]) {
+					$(container).addClass('has-container-hover');
+				}
+
+				if (opts.controls[3]) {
+					var event = 'click';
+				} else {
+					var event = 'mouseover'
+				} 
+
+			}
+			
+			if ($(container).css('position') !== 'relative') {
+				$(container).css({'position': 'relative'});
+			}
 			
 			function go(nextSlide) {
 				
 				switch (opts.animation) {
 
 				case 'slide':
+					$('.active', controlPanel).removeClass('active');
+					$('.controls .control:eq(' + nextSlide + ')', controlPanel).addClass('active');
 					$(slides).removeClass('active');
 					$(slides[nextSlide]).addClass('active');
 					
@@ -130,7 +155,9 @@
 						}, {duration: opts.speed});
 					break;
 					
-				default:		
+				default:
+					$('.active', controlPanel).removeClass('active');
+					$('.controls .control:eq(' + nextSlide + ')', controlPanel).addClass('active');
 					$(slides)
 						.removeClass('active')
 						.stop(true)
@@ -174,20 +201,48 @@
 					break;
 			
 				default:
+					go(currentSlide);
 					break;
 				}
 			}
+	
+			$(container)
+				.bind(
+					'click', 
+					function () {
+						if (opts.controls[2]) {
+							advance('next');
+						}
+					}
+				).mouseover(function () {
+				
+				}).mouseleave(function () {
+				
+				});
 
-			if ($(container).css('position') !== 'relative') {
-				$(container).css({'position': 'relative'});
-			}
+			$('.controls, .next, .prev', controlPanel)
+				.bind(
+					'click',
+					function (e) {
+						e.stopPropagation();
+					}
+				);
 
-			$(container).click(function () {
+			$('.controls .control', controlPanel)
+				.bind(
+					controlsEvent,
+					function () {
+						currentSlide = $(this).index();
+						advance();
+					}
+				);
+				
+			$('.prev').click(function(){
+				advance('prev');
+			});
+			
+			$('.next').click(function(){
 				advance('next');
-			}).mouseover(function () {
-				
-			}).mouseleave(function () {
-				
 			});
 			
 
@@ -198,9 +253,7 @@
 	$.fn.slideshow.defaults = {
 		animation: 'fade',
 		autoSizeSlides: true,
-		clickNext: false, // True advances the slidehshow if clicked, fasle will require the use of the controls or pre/next
-		controls: [true, false, false], // True will display controlls wherease false will not
-		controlsClick: true, // True will require a click event to use the controls false use the mouseover event
+		controls: [true, false, false, true], // [controls,next/prev,clicking container advances slideshow, controls hover/click]
 		loop: true, // True 
 		nextSlide: false, // Selector
 		prevSlide: false, // Selector

@@ -4,14 +4,14 @@
 
 <!-- <h1>A Simple Jquery Slideshow</h1> -->
 
-<section id="content">
+<section id="content" class="slideshow">
   <% data.slides.slides.each do |s| %>
-    <article class="slide"><img src="#" style="background-color:<%= s %>;" /></article>
+    <article class="slide"><div style="background-color:<%= s %>;"></div></article>
   <% end %>
 </section>
 
-<section id="content-2">
+<section id="content-2" class="slideshow">
   <% data.slides.slides.each do |s| %>
-    <article class="slide"><img src="#" style="background-color:<%= s %>;" /></article>
+    <article class="slide"><div style="background-color:<%= s %>;"></div></article>
   <% end %>
 </section>
