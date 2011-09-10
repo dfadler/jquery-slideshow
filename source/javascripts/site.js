@@ -14,15 +14,16 @@ $(document).ready(function(){
 
 
 	$('#content').slideshow({
+		containerEvent:[false,true,true],
 		captionAnimation: 'slide',
 		captions:'.caption',
-		containerEvent:[false,true,true],
 		controls:[true,true],
 		loop:false
 	});
 
 	$('#content-2').slideshow({
 		animation:'slide',
+		captionAnimation: 'fade',
 		captions:'.caption',
 		controls:[true,true],
 		controlEvent: false

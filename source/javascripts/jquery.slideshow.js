@@ -59,7 +59,26 @@
 					}
 				}
 				break;
+			
+			case 'fade':
+				if ($(slides).css('position') !== 'absolute') {
+					$(slides)
+						.css({
+							'position': 'absolute',
+							'top': 0,
+							'left': 0
+						});
 
+					if (opts.autoSizeSlides) {
+						$(slides)
+							.css({
+								'height': contHeight,
+								'width': contWidth
+							})
+							.wrapInner('<div class="slide-content" style="height:100%;" />');
+					}
+				}
+			
 			default:
 				if ($(slides).css('position') !== 'absolute') {
 					$(slides)
@@ -96,6 +115,7 @@
 				captions = $('.caption', slides);
 				
 				$(captions[0]).addClass('active');
+				
 				// Sets up captions for configured animations
 				switch (opts.captionAnimation) {
 					case 'slide':
@@ -104,7 +124,13 @@
 						captionHeight = parseInt($(captions).css('padding-top')) * 2 + $(captions).height() ;
 						$(captions)
 							.css({'bottom':-captionHeight});
-						break;
+						break;					
+					case 'fade':
+						$(captions)
+							.css({
+								'opacity':0
+							});
+						break;	
 					default:
 						$(captions)
 							.css({
@@ -124,10 +150,10 @@
 			};
 
 			// Disables next/prev if loop is false and have reached the end of the slideshow
-			function toggleNextPrev(obj, b) {
+			function toggleNextPrev(obj, bol) {
 				// $(obj, controlPanel).toggleClass('disabled', b);
 				
-				if (b) {
+				if (bol) {
 					$(obj, controlPanel).addClass('disabled');
 				} else {
 					$(obj, controlPanel).removeClass('disabled');
@@ -198,36 +224,82 @@
 
 						case 'slide':
 							bol === true ? bol = 0 : bol = -captionHeight;
-							$(captions[currentSlide])
-								.stop(true)
-								.animate({
-									'bottom':bol
-								},{duration:opts.speed}
-							);
+							$(captions)
+								.each(
+									function(){
+										if ($(this).hasClass('active') && $(container).hasClass('hovering')) {
+											$(this)
+											.stop(true)
+											.animate({
+												'bottom': 0
+											},{
+												duration:opts.speed
+											});
+										} else {
+											$(this)
+											.stop(true)
+											.animate({
+												'bottom': -captionHeight
+											},{
+												duration:opts.speed
+											});
+										}
+									}
+								);
+							break;
+						case 'fade':
+							bol === true ? bol = 1 : bol = 0;
+							$(captions)
+								.each(
+									function(){
+										if ($(this).hasClass('active') && $(container).hasClass('hovering')) {
+											$(this)
+											.stop(true)
+											.animate({
+												'opacity':1
+											},{
+												duration:opts.speed
+											});
+										} else {
+											$(this)
+											.stop(true)
+											.animate({
+												'opacity':0
+											},{
+												duration:opts.speed
+											});
+										}
+									}
+								);
 							break;
 						default:
 							bol === true ? bol = 1 : bol = 0;
-							if($('.stage:animated', container).length < 1) {
-								$(captions[currentSlide])
-									.stop(true)
-									.animate({
-										'opacity':bol
-									},{duration:opts.speed}
+							$(captions)
+								.each(
+									function(){
+										if ($(this).hasClass('active') && $(container).hasClass('hovering')) {
+											$(this)
+											.stop(true)
+											.animate({
+												'opacity':1
+											},{
+												duration:opts.speed * 2
+											});
+										} else {
+											$(this)
+											.stop(true)
+											.animate({
+												'opacity':0
+											},{
+												duration:opts.speed * 2
+											});
+										}
+									}
 								);
-							} else {
-								$(captions[currentSlide])
-									.stop(false)
-									.animate({
-										'opacity':bol
-									},{duration:opts.speed * 3}
-								);	
-							}
 							break;
 					}
 				}	
 			}
-			
-			
 			// Animation and class progression
 			function go(nextSlide) {
 				
@@ -235,6 +307,7 @@
 
 				case 'slide':
 					if (captions) {
+						toggleCaptions(false);
 						$(captions)
 							.removeClass('active');
 						$(captions[nextSlide])
@@ -250,18 +323,24 @@
 						.addClass('active');
 					$('.stage', container)
 						.stop(true)
-						.animate({
-							'left': -contWidth * currentSlide
-						}, {duration: opts.speed});
+						.animate(
+							{
+								'left': -contWidth * currentSlide
+							},{
+								duration: opts.speed
+							}, 
+								toggleCaptions(true)
+							);
 					break;
-					
-				default:
+				
+				case 'fade':
 					if (captions) {
+						toggleCaptions(false);
 						$(captions)
 							.removeClass('active');
 						$(captions[nextSlide])
 							.addClass('active');
-						toggleCaptions();	
+						toggleCaptions(true);	
 					}
 					$('.active', controlPanel)
 						.removeClass('active');
@@ -278,11 +357,46 @@
 						.stop(true)
 						.animate({
 							'opacity': 1
+						},{
+							duration: opts.speed
+						},
+							toggleCaptions(true)
+					);
+					break;
+				
+				default:
+					if (captions) {
+						toggleCaptions(false);
+						$(captions)
+							.removeClass('active');
+						$(captions[nextSlide])
+							.addClass('active');
+						toggleCaptions(true);	
+					}
+					$('.active', controlPanel)
+						.removeClass('active');
+					$('.controls .control:eq(' + nextSlide + ')', controlPanel)
+						.addClass('active');
+					$(slides)
+						.removeClass('active')
+						.stop(true)
+						.animate({
+							'opacity': 0
 						}, {duration: opts.speed});
+					$(slides[nextSlide])
+						.addClass('active')
+						.stop(true)
+						.animate({
+							'opacity': 1
+						},{
+							duration: opts.speed
+						},
+							toggleCaptions(true)
+					);
 					break;
 				}
 			}
-			// Current slide increment/decrement
+			// Slideshow Progression
 			function advance(direction) {
 				
 				toggleCaptions(false);
@@ -319,9 +433,9 @@
 					currentSlide >= lastSlide ? toggleNextPrev('.next', true) : toggleNextPrev('.next', false);
 					currentSlide <= 0 ? toggleNextPrev('.prev', true) : toggleNextPrev('.prev', false);
 				}
-				if ($(container).hasClass('hovering')) {
-					toggleCaptions(true);
-				}	
+				// if ($(container).hasClass('hovering')) {
+				// 	toggleCaptions(true);
+				// }	
 			}
 
 			opts.autoplay !== 0 ? slideshowActive = true : slideshowActive = false;
@@ -351,7 +465,7 @@
 					'click', 
 					function () {
 						
-						toggleCaptions(false);
+						// toggleCaptions(false);
 						
 						if (opts.containerEvent[0]) {
 							advance('next');
@@ -359,7 +473,7 @@
 						if (opts.containerEvent[1]) {
 							slideshowActive = false;
 						}
-						toggleCaptions(true);
+						// toggleCaptions(true);
 					}
 				).mouseover(function () {
 					if (opts.containerEvent[2]) {
@@ -412,12 +526,54 @@
 		});
 	};
 	
-	function animateSlide(element,type) {
+	function advanceSlide() {
 		
 	}
 	
+	function animateSlide(element,type) {
+		switch (type) {
+			case "slide":
+				$(element)
+					.animate({
+					
+					});
+				break;
+			case "fade":
+				$(element)
+					.animate({
+					
+					});
+				break;
+			default:
+				$(element)
+					.animate({
+						
+					});
+				break;
+		}	
+	}
+	
 	function animateCaption(element,type) {
-		
+		switch (type) {
+			case "slide":
+				$(element)
+					.animate({
+					
+					});
+				break;
+			case "fade":
+				$(element)
+					.animate({
+					
+					});
+				break;
+			default:
+				$(element)
+					.animate({
+						
+					});
+				break;
+		}
 	}
 	
 	// Slideshow default options
