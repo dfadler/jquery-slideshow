@@ -411,7 +411,15 @@
 
 		});
 	};
-
+	
+	function animateSlide(element,type) {
+		
+	}
+	
+	function animateCaption(element,type) {
+		
+	}
+	
 	// Slideshow default options
 	$.fn.slideshow.defaults = {
 		animation: 'fade', // Can be set to 'fade'(default) or 'slide', anything other than fade or slide will default to fade
