@@ -37,12 +37,27 @@
 				slideshowActive = null,
 				interval = null;
 
+			$(slides).each(function () {
+				if ($(this).index() !== 0) {
+					$(this)
+						.css({
+							'z-index':1
+						});
+				} else {
+					$(this)
+						.addClass('active')
+						.css({
+							'z-index':2
+						});
+				}
+			});
+
 			// Sets up slides for configured animation	
 			switch (opts.animation) {
 
 			case 'slide':
 				$(container)
-					.wrapInner('<div class="window" style="overflow:hidden; width:'+contWidth+'px; position:relative;"><div class="stage" style="position:relative; left:0; width:' + contWidth * (lastSlide + 1) + 'px;"></div></div>');
+					.wrapInner('<div class="window" style="overflow:hidden; width:' + contWidth + 'px; position:relative;"><div class="stage" style="position:relative; left:0; width:' + contWidth * (lastSlide + 1) + 'px;"></div></div>');
 				if ($(slides).css('float') !== 'left') {
 					$(slides)
 						.css({
@@ -58,6 +73,7 @@
 							.wrapInner('<div class="slide-content" />');
 					}
 				}
+				
 				break;
 			
 			case 'fade':
@@ -79,16 +95,8 @@
 					}
 				}
 
-				$(slides).each(function () {
-					if ($(this).index() !== 0) {
-						$(this)
-							.css({'opacity': 0});
-					} else {
-						$(this)
-							.addClass('active');
-					}
-				});
 				break;
+				
 			default:
 				if ($(slides).css('position') !== 'absolute') {
 					$(slides)
@@ -108,58 +116,54 @@
 					}
 				}
 
-				$(slides).each(function () {
-					if ($(this).index() !== 0) {
-						$(this)
-							.css({'opacity': 0});
-					} else {
-						$(this)
-							.addClass('active');
-					}
-				});
 				break;
 			}	
 			
-			if (opts.captionAnimation) {
+			if (opts.captions) {
 				
 				captions = $('.caption', slides);
 				
-				$(captions[0]).addClass('active');
+				$(captions[0])
+					.addClass('active');
 				
 				// Sets up captions for configured animations
 				switch (opts.captionAnimation) {
+					
 				case 'slide':
 					$(slides)
 						.css({
 							'overflow': 'hidden'
 						});
+						
 					captionHeight = parseInt($(captions).css('padding-top'), 0) * 2 + $(captions).height();
+					
 					$(captions)
 						.css({
 							'bottom': -captionHeight
 						});
-					break;					
+					break;			
+							
 				case 'fade':
 					$(captions)
 						.css({
 							'opacity': 0
 						});
 					break;	
+					
 				default:
 					$(captions)
 						.css({
-							'opacity': 0
+							'opacity': 0,
 						});
 					break;
 				}	
 			}
-			
-			
-			
+
 			// Slideshow method to add control panel and corresponding property
 			Slideshow.prototype.controls = function () {
 				$(container)
 					.append('<div class="control-panel" />');
+					
 				this.controlPanel = $('.control-panel', container);
 			};
 
@@ -199,17 +203,18 @@
 					$(slides).each(function (i) {
 						$('.controls', container)
 							.append('<li class="control"><span>' + i + '</span></li>');
-					});
+					})
 					
 					$(controlPanel)
 						.find('.controls .control:eq(0)')
-						.addClass('active');	
+						.addClass('active')
 				}
 				
 				// Adds next and prev controls
 				if (opts.controls[1]) {
 					$(controlPanel)
 						.append('<div class="prev-container"><span class="prev">Prev</span></div><div class="next-container"><span class="next">Next</span></div>');
+						
 					if (!opts.loop) {
 						toggleNextPrev('.prev', true);
 					}
@@ -229,9 +234,7 @@
 						'position': 'relative'
 					});
 			}
-			
-			
-			
+
 			function toggleCaptions(bol) {
 				function bolToggle(bol) {
 					if (bol === true) {
@@ -301,18 +304,14 @@
 									if ($(this).hasClass('active') && $(container).hasClass('hovering')) {
 										$(this)
 											.stop(true)
-											.animate({
+											.css({
 												'opacity': 1
-											}, {
-												duration: opts.speed
 											});
 									} else {
 										$(this)
 											.stop(true)
-											.animate({
+											.css({
 												'opacity': 0
-											}, {
-												duration: opts.speed
 											});
 									}
 								}
@@ -321,6 +320,7 @@
 					}
 				}	
 			}
+			
 			// Animation and class progression
 			function go(nextSlide) {
 				
@@ -329,19 +329,31 @@
 				case 'slide':
 					if (captions) {
 						toggleCaptions(false);
+						
 						$(captions)
 							.removeClass('active');
+							
 						$(captions[nextSlide])
 							.addClass('active');
 					}
 					$('.active', controlPanel)
 						.removeClass('active');
+						
 					$('.controls .control:eq(' + nextSlide + ')', controlPanel)
 						.addClass('active');
+						
 					$(slides)
-						.removeClass('active');
+						.removeClass('active')
+						.css({
+							'z-index':1
+						});
+						
 					$(slides[nextSlide])
-						.addClass('active');
+						.addClass('active')
+						.css({
+							'z-index':2
+						});
+						
 					$('.stage', container)
 						.stop(true)
 						.animate(
@@ -358,18 +370,27 @@
 				case 'fade':
 					if (captions) {
 						toggleCaptions(false);
+						
 						$(captions)
 							.removeClass('active');
+							
 						$(captions[nextSlide])
 							.addClass('active');
+							
 						toggleCaptions(true);	
 					}
+					
 					$('.active', controlPanel)
 						.removeClass('active');
+						
 					$('.controls .control:eq(' + nextSlide + ')', controlPanel)
 						.addClass('active');
+						
 					$(slides)
 						.removeClass('active')
+						.css({
+							'z-index':1
+						})
 						.stop(true)
 						.animate(
 							{
@@ -379,8 +400,12 @@
 								duration: opts.speed
 							}
 						);
+						
 					$(slides[nextSlide])
 						.addClass('active')
+						.css({
+							'z-index':2
+						})
 						.stop(true)
 						.animate(
 							{
@@ -396,37 +421,47 @@
 				default:
 					if (captions) {
 						toggleCaptions(false);
+						
 						$(captions)
-							.removeClass('active');
+							.removeClass('active')
+							.css({
+								'opacity': 0,
+								'z-index': 1
+							});
+							
 						$(captions[nextSlide])
-							.addClass('active');
+							.addClass('active')
+							.css({
+								'opacity': 1,
+								'z-index': 2
+							});
+							
 						toggleCaptions(true);	
 					}
+					
 					$('.active', controlPanel)
 						.removeClass('active');
+						
 					$('.controls .control:eq(' + nextSlide + ')', controlPanel)
 						.addClass('active');
+						
 					$(slides)
 						.removeClass('active')
-						.stop(true)
-						.animate({
+						.css({
 							'opacity': 0
-						}, {duration: opts.speed});
+						});
+						
 					$(slides[nextSlide])
 						.addClass('active')
-						.stop(true)
-						.animate(
+						.css(
 							{
 								'opacity': 1
-							},
-							{
-								duration: opts.speed
-							},
-							toggleCaptions(true)
-						);
+							});
+							toggleCaptions(true);
 					break;
 				}
 			}
+			
 			// Slideshow Progression
 			function advance(direction) {
 				
@@ -471,29 +506,25 @@
 				}
 				
 				if (opts.controls[1] && !opts.loop) {
+					if (currentSlide >= lastSlide) {
+						toggleNextPrev('.next', true);
+					} else {
+						toggleNextPrev('.next', false);
+					}
 					
-					
-					// if (currentSlide >= lastSlide) {
-					// 	toggleNextPrev('.next', true);
-					// } else {
-					// 	toggleNextPrev('.next', false);
-					// }
-					// 
-					// if (currentSlide <= 0) {
-					// 	toggleNextPrev('.prev', true);
-					// } else {
-					// 	toggleNextPrev('.prev', false);
-					// }
-
-					currentSlide >= lastSlide ? toggleNextPrev('.next', true) : toggleNextPrev('.next', false);
-					currentSlide <= 0 ? toggleNextPrev('.prev', true) : toggleNextPrev('.prev', false);
+					if (currentSlide <= 0) {
+						toggleNextPrev('.prev', true);
+					} else {
+						toggleNextPrev('.prev', false);
+					}
 				}
-				// if ($(container).hasClass('hovering')) {
-				// 	toggleCaptions(true);
-				// }	
 			}
-
-			opts.autoplay !== 0 ? slideshowActive = true : slideshowActive = false;
+			
+			if (opts.autoplay !== 0) {
+				slideshowActive = true;
+			} else {
+				slideshowActive = false;
+			}
 
 			function next() {
 				advance('next');
@@ -514,21 +545,27 @@
 			}
 
 		    startSlideshow();
-
+			
+			// Prevents control events from bubbling up
+			$('.controls, .next, .prev, .caption', container)
+				.bind(
+					'click',
+					function (e) {
+						return false;
+						e.stopPropagation();
+					}
+				);
+			
 			$(container)
 				.bind(
 					'click', 
 					function () {
-						
-						// toggleCaptions(false);
-						
 						if (opts.containerEvent[0]) {
 							advance('next');
 						}
 						if (opts.containerEvent[1]) {
 							slideshowActive = false;
 						}
-						// toggleCaptions(true);
 					}
 				).mouseover(function () {
 					if (opts.containerEvent[2]) {
@@ -544,15 +581,8 @@
 					}
 				});
 				
-			// Prevents control events from bubbling up
-			$('.controls, .next, .prev', controlPanel)
-				.bind(
-					'click',
-					function (e) {
-						e.stopPropagation();
-					}
-				);
-				
+			
+			
 			// Events for control click/mouseover
 			$('.controls .control', controlPanel)
 				.bind(
@@ -577,66 +607,15 @@
 						}
 					}
 				);
-
 		});
 	};
 	
-	function advanceSlide() {
-		
-	}
-	
-	function animateSlide(element,type) {
-		switch (type) {
-			case "slide":
-				$(element)
-					.animate({
-					
-					});
-				break;
-			case "fade":
-				$(element)
-					.animate({
-					
-					});
-				break;
-			default:
-				$(element)
-					.animate({
-						
-					});
-				break;
-		}	
-	}
-	
-	function animateCaption(element,type) {
-		switch (type) {
-			case "slide":
-				$(element)
-					.animate({
-					
-					});
-				break;
-			case "fade":
-				$(element)
-					.animate({
-					
-					});
-				break;
-			default:
-				$(element)
-					.animate({
-						
-					});
-				break;
-		}
-	}
-	
 	// Slideshow default options
 	$.fn.slideshow.defaults = {
-		animation: 'fade', // Can be set to 'fade'(default) or 'slide', anything other than fade or slide will default to fade
+		animation: false, // Can be set to 'fade'(default) or 'slide', anything other than fade or slide will default to fade
 		autoSizeSlides: true, // Adds inline css to slides that matches the height and width of the container
 		captions: null, // Selector
-		captionAnimation: 'fade',
+		captionAnimation: false,
 		containerEvent: [true, true, true], // [container click advances slideshow, stop slideshow when clicked, pauses slideshow on hover]
 		controls: [true, false], // [controls, next/prev, clicking container advances slideshow, controls hover/click]
 		controlEvent: true, // controls click/hover - true will require a control click to trigger control false will trigger on hover
@@ -645,5 +624,5 @@
 		speed: 300, // Animation speed for slide progression
 		autoplay: 2000  // Autoplay speed; Use 0 to disable autoplay
 	};
-	
+
 })(jQuery);

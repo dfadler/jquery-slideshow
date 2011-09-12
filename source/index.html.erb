@@ -24,3 +24,14 @@
     </article>
   <% end %>
 </section>
+
+<section id="content-3" class="slideshow">
+  <% 10.times do |i| %>
+    <article class="slide">
+      <%= image_tag("slideshow-1/#{i + 1}.jpeg") %>
+        <div class="caption">
+          <p><%= data.slides.captions[i] %></p>
+        </div>
+    </article>
+  <% end %>
+</section>

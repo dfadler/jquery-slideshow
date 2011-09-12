@@ -28,7 +28,16 @@ $(document).ready(function(){
 		captionAnimation: 'fade',
 		captions:'.caption',
 		controls:[true,true],
-		controlEvent: false
+		controlEvent: false,
+	});
+	
+	$('#content-3').slideshow({
+		// animation:'slide',
+		// captionAnimation: 'fade',
+		captions:'.caption',
+		controls:[true,true],
+		controlEvent: false,
+		loop:false
 	});
 
 });
