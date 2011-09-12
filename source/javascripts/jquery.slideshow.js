@@ -639,7 +639,7 @@
 		autoplay: 2000,  // Autoplay speed; Use 0 to disable autoplay
 		autoSizeSlides: true, // Adds inline css to slides that matches the height and width of the container
 		captions: null, // Selector
-		captionAnimation: false,
+		captionAnimation: false, // Can be set to 'fade', 'slide', or false(default)
 		containerEvent: [true, true, true], // [container click advances slideshow, stop slideshow when clicked, pauses slideshow on hover]
 		controls: [true, false], // [controls, next/prev, clicking container advances slideshow, controls hover/click]
 		controlEvent: true, // controls click/hover - true will require a control click to trigger control false will trigger on hover
