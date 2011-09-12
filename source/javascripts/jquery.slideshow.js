@@ -37,21 +37,6 @@
 				slideshowActive = null,
 				interval = null;
 
-			$(slides).each(function () {
-				if ($(this).index() !== 0) {
-					$(this)
-						.css({
-							'z-index':1
-						});
-				} else {
-					$(this)
-						.addClass('active')
-						.css({
-							'z-index':2
-						});
-				}
-			});
-
 			// Sets up slides for configured animation	
 			switch (opts.animation) {
 
@@ -82,7 +67,8 @@
 						.css({
 							'position': 'absolute',
 							'top': 0,
-							'left': 0
+							'left': 0,
+							'opacity': 0
 						});
 
 					if (opts.autoSizeSlides) {
@@ -118,6 +104,22 @@
 
 				break;
 			}	
+			
+			$(slides).each(function () {
+				if ($(this).index() !== 0) {
+					$(this)
+						.css({
+							'z-index':1
+						});
+				} else {
+					$(this)
+						.addClass('active')
+						.css({
+							'z-index':2,
+							'opacity': 1
+						});
+				}
+			});
 			
 			if (opts.captions) {
 				
