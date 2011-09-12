@@ -42,7 +42,7 @@
 
 			case 'slide':
 				$(container)
-					.wrapInner('<div class="window" style="overflow:hidden;"><div class="stage" style="position:relative; left:0; width:' + contWidth * (lastSlide + 1) + 'px;"></div></div>');
+					.wrapInner('<div class="window" style="overflow:hidden; width:'+contWidth+'px; position:relative;"><div class="stage" style="position:relative; left:0; width:' + contWidth * (lastSlide + 1) + 'px;"></div></div>');
 				if ($(slides).css('float') !== 'left') {
 					$(slides)
 						.css({
