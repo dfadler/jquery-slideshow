@@ -1,15 +1,15 @@
 <% content_for :head do %>
   <title>A Simple Jquery Slideshow</title>
 <% end %>
-<!-- <h1>A Simple Jquery Slideshow</h1> -->
+<h1>Simple Slide</h1>
+<p>This simple Jquery slideshow 
 <section id="content" class="slideshow">
   <% 10.times do |i| %>
     <article class="slide">
-      <div style="background-color:<%= data.slides.slides[i] %>;">
+      <%= image_tag("slideshow-1/#{i + 1}.jpeg") %>
         <div class="caption">
           <p><%= data.slides.captions[i] %></p>
         </div>
-      </div>
     </article>
   <% end %>
 </section>
@@ -17,11 +17,10 @@
 <section id="content-2" class="slideshow">
   <% 10.times do |i| %>
     <article class="slide">
-      <div style="background-color:<%= data.slides.slides[i] %>;">
+      <%= image_tag("slideshow-1/#{i + 1}.jpeg") %>
         <div class="caption">
           <p><%= data.slides.captions[i] %></p>
         </div>
-      </div>
     </article>
   <% end %>
 </section>

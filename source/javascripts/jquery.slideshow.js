@@ -55,7 +55,7 @@
 								'height': contHeight,
 								'width': contWidth
 							})
-							.wrapInner('<div class="slide-content" style="height:100%;" />');
+							.wrapInner('<div class="slide-content" />');
 					}
 				}
 				break;
@@ -78,7 +78,17 @@
 							.wrapInner('<div class="slide-content" style="height:100%;" />');
 					}
 				}
-			
+
+				$(slides).each(function () {
+					if ($(this).index() !== 0) {
+						$(this)
+							.css({'opacity': 0});
+					} else {
+						$(this)
+							.addClass('active');
+					}
+				});
+				break;
 			default:
 				if ($(slides).css('position') !== 'absolute') {
 					$(slides)
@@ -118,25 +128,29 @@
 				
 				// Sets up captions for configured animations
 				switch (opts.captionAnimation) {
-					case 'slide':
-						$(slides)
-							.css({'overflow':'hidden'});
-						captionHeight = parseInt($(captions).css('padding-top')) * 2 + $(captions).height() ;
-						$(captions)
-							.css({'bottom':-captionHeight});
-						break;					
-					case 'fade':
-						$(captions)
-							.css({
-								'opacity':0
-							});
-						break;	
-					default:
-						$(captions)
-							.css({
-								'opacity':0
-							});
-						break;
+				case 'slide':
+					$(slides)
+						.css({
+							'overflow': 'hidden'
+						});
+					captionHeight = parseInt($(captions).css('padding-top'), 0) * 2 + $(captions).height();
+					$(captions)
+						.css({
+							'bottom': -captionHeight
+						});
+					break;					
+				case 'fade':
+					$(captions)
+						.css({
+							'opacity': 0
+						});
+					break;	
+				default:
+					$(captions)
+						.css({
+							'opacity': 0
+						});
+					break;
 				}	
 			}
 			
@@ -173,7 +187,7 @@
 						'top': 0,
 						'left': 0,
 						'height': contHeight,
-						'width': contWidth,
+						'width': contWidth
 					});
 				
 				// Adds controls to control panel
@@ -219,84 +233,91 @@
 			
 			
 			function toggleCaptions(bol) {
+				function bolToggle(bol) {
+					if (bol === true) {
+						bol = 0;
+					} else {
+						bol = -captionHeight;
+					}
+				}
 				if (opts.captions) {
 					switch (opts.captionAnimation) {
 
-						case 'slide':
-							bol === true ? bol = 0 : bol = -captionHeight;
-							$(captions)
-								.each(
-									function(){
-										if ($(this).hasClass('active') && $(container).hasClass('hovering')) {
-											$(this)
+					case 'slide':
+						bolToggle(bol);
+						$(captions)
+							.each(
+								function () {
+									if ($(this).hasClass('active') && $(container).hasClass('hovering')) {
+										$(this)
 											.stop(true)
 											.animate({
 												'bottom': 0
-											},{
-												duration:opts.speed
+											}, {
+												duration: opts.speed
 											});
-										} else {
-											$(this)
+									} else {
+										$(this)
 											.stop(true)
 											.animate({
 												'bottom': -captionHeight
-											},{
-												duration:opts.speed
+											}, {
+												duration: opts.speed
 											});
-										}
 									}
-								);
-							break;
-						case 'fade':
-							bol === true ? bol = 1 : bol = 0;
-							$(captions)
-								.each(
-									function(){
-										if ($(this).hasClass('active') && $(container).hasClass('hovering')) {
-											$(this)
+								}
+							);
+						break;
+					case 'fade':
+						bolToggle(bol);
+						$(captions)
+							.each(
+								function () {
+									if ($(this).hasClass('active') && $(container).hasClass('hovering')) {
+										$(this)
 											.stop(true)
 											.animate({
-												'opacity':1
-											},{
-												duration:opts.speed
+												'opacity': 1
+											}, {
+												duration: opts.speed
 											});
-										} else {
-											$(this)
+									} else {
+										$(this)
 											.stop(true)
 											.animate({
-												'opacity':0
-											},{
-												duration:opts.speed
+												'opacity': 0
+											}, {
+												duration: opts.speed
 											});
-										}
 									}
-								);
-							break;
-						default:
-							bol === true ? bol = 1 : bol = 0;
-							$(captions)
-								.each(
-									function(){
-										if ($(this).hasClass('active') && $(container).hasClass('hovering')) {
-											$(this)
+								}
+							);
+						break;
+					default:
+						bolToggle(bol);
+						$(captions)
+							.each(
+								function () {
+									if ($(this).hasClass('active') && $(container).hasClass('hovering')) {
+										$(this)
 											.stop(true)
 											.animate({
-												'opacity':1
-											},{
-												duration:opts.speed * 2
+												'opacity': 1
+											}, {
+												duration: opts.speed
 											});
-										} else {
-											$(this)
+									} else {
+										$(this)
 											.stop(true)
 											.animate({
-												'opacity':0
-											},{
-												duration:opts.speed * 2
+												'opacity': 0
+											}, {
+												duration: opts.speed
 											});
-										}
 									}
-								);
-							break;
+								}
+							);
+						break;
 					}
 				}	
 			}
@@ -326,11 +347,12 @@
 						.animate(
 							{
 								'left': -contWidth * currentSlide
-							},{
+							}, 
+							{
 								duration: opts.speed
 							}, 
-								toggleCaptions(true)
-							);
+							toggleCaptions(true)
+						);
 					break;
 				
 				case 'fade':
@@ -349,19 +371,26 @@
 					$(slides)
 						.removeClass('active')
 						.stop(true)
-						.animate({
-							'opacity': 0
-						}, {duration: opts.speed});
+						.animate(
+							{
+								'opacity': 0
+							}, 
+							{
+								duration: opts.speed
+							}
+						);
 					$(slides[nextSlide])
 						.addClass('active')
 						.stop(true)
-						.animate({
-							'opacity': 1
-						},{
-							duration: opts.speed
-						},
+						.animate(
+							{
+								'opacity': 1
+							},
+							{
+								duration: opts.speed
+							},
 							toggleCaptions(true)
-					);
+						);
 					break;
 				
 				default:
@@ -386,18 +415,30 @@
 					$(slides[nextSlide])
 						.addClass('active')
 						.stop(true)
-						.animate({
-							'opacity': 1
-						},{
-							duration: opts.speed
-						},
+						.animate(
+							{
+								'opacity': 1
+							},
+							{
+								duration: opts.speed
+							},
 							toggleCaptions(true)
-					);
+						);
 					break;
 				}
 			}
 			// Slideshow Progression
 			function advance(direction) {
+				
+				function toggleLoop(direction) {
+					if (opts.loop && direction === 'next') {
+						currentSlide = 0;
+					} else if (opts.loop && direction === 'prev') {
+						currentSlide = lastSlide;
+					} else {
+						return;
+					}
+				}
 				
 				toggleCaptions(false);
 				
@@ -408,7 +449,7 @@
 						currentSlide += 1;
 						go(currentSlide);
 					} else {
-						currentSlide = opts.loop ? 0 : lastSlide;
+						toggleLoop(direction);
 						go(currentSlide);
 					}
 					break;
@@ -418,7 +459,7 @@
 						currentSlide -= 1;
 						go(currentSlide);
 					} else {
-						currentSlide = opts.loop ? lastSlide : 0;
+						toggleLoop(direction);
 						go(currentSlide);
 					}
 					break;
@@ -430,6 +471,20 @@
 				}
 				
 				if (opts.controls[1] && !opts.loop) {
+					
+					
+					// if (currentSlide >= lastSlide) {
+					// 	toggleNextPrev('.next', true);
+					// } else {
+					// 	toggleNextPrev('.next', false);
+					// }
+					// 
+					// if (currentSlide <= 0) {
+					// 	toggleNextPrev('.prev', true);
+					// } else {
+					// 	toggleNextPrev('.prev', false);
+					// }
+
 					currentSlide >= lastSlide ? toggleNextPrev('.next', true) : toggleNextPrev('.next', false);
 					currentSlide <= 0 ? toggleNextPrev('.prev', true) : toggleNextPrev('.prev', false);
 				}

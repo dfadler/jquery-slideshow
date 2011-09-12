@@ -14,9 +14,11 @@ $(document).ready(function(){
 
 
 	$('#content').slideshow({
+		// autoSizeSlides: false,
 		containerEvent:[false,true,true],
 		captionAnimation: 'slide',
 		captions:'.caption',
+		animation:'fade',
 		controls:[true,true],
 		loop:false
 	});
