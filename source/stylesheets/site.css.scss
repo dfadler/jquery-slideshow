@@ -22,9 +22,6 @@ body {
 	}
 }
 
-
-
-
 #content {
   // float:left;
   margin:50px 0;
@@ -103,7 +100,7 @@ body {
   }
 }
 
-#content-2 {
+#content-2, #content-3 {
   	@extend #content;
 }
 
