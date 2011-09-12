@@ -17,7 +17,7 @@
 				this.slideCount = this.slides.length;
 				this.lastSlide = this.slideCount - 1;
 				this.controlPanel = null;
-				this.captions = null;
+				this.captions = this.settings.captions ? $(this.settings.captions, this.container) : null;
 			}
 			
 			// Slideshow property variable assignments
@@ -38,7 +38,7 @@
 				interval = null;
 
 			// Sets up slides for configured animation	
-			switch (opts.animation) {
+			switch (opts.slideAnimation) {
 
 			case 'slide':
 				$(container)
@@ -46,7 +46,8 @@
 				if ($(slides).css('float') !== 'left') {
 					$(slides)
 						.css({
-							'float': 'left'
+							'float': 'left',
+							'position': 'relative'
 						});
 
 					if (opts.autoSizeSlides) {
@@ -109,24 +110,29 @@
 				if ($(this).index() !== 0) {
 					$(this)
 						.css({
-							'z-index':1
+							'z-index': 1
 						});
 				} else {
 					$(this)
 						.addClass('active')
 						.css({
-							'z-index':2,
+							'z-index': 2,
 							'opacity': 1
 						});
 				}
 			});
 			
-			if (opts.captions) {
-				
-				captions = $('.caption', slides);
-				
+			if (captions) {
+
 				$(captions[0])
 					.addClass('active');
+					
+				$(captions)
+					.css({
+						'position': 'absolute',
+						'left': 0,
+						'bottom': 0
+					});
 				
 				// Sets up captions for configured animations
 				switch (opts.captionAnimation) {
@@ -155,7 +161,7 @@
 				default:
 					$(captions)
 						.css({
-							'opacity': 0,
+							'opacity': 1
 						});
 					break;
 				}	
@@ -171,8 +177,6 @@
 
 			// Disables next/prev if loop is false and have reached the end of the slideshow
 			function toggleNextPrev(obj, bol) {
-				// $(obj, controlPanel).toggleClass('disabled', b);
-				
 				if (bol) {
 					$(obj, controlPanel).addClass('disabled');
 				} else {
@@ -205,11 +209,11 @@
 					$(slides).each(function (i) {
 						$('.controls', container)
 							.append('<li class="control"><span>' + i + '</span></li>');
-					})
+					});
 					
 					$(controlPanel)
 						.find('.controls .control:eq(0)')
-						.addClass('active')
+						.addClass('active');
 				}
 				
 				// Adds next and prev controls
@@ -239,13 +243,10 @@
 
 			function toggleCaptions(bol) {
 				function bolToggle(bol) {
-					if (bol === true) {
-						bol = 0;
-					} else {
-						bol = -captionHeight;
-					}
+					bol = bol ? bol = 0 : bol = -captionHeight;
 				}
-				if (opts.captions) {
+				
+				if (captions) {
 					switch (opts.captionAnimation) {
 
 					case 'slide':
@@ -255,7 +256,6 @@
 								function () {
 									if ($(this).hasClass('active') && $(container).hasClass('hovering')) {
 										$(this)
-											.stop(true)
 											.animate({
 												'bottom': 0
 											}, {
@@ -280,7 +280,6 @@
 								function () {
 									if ($(this).hasClass('active') && $(container).hasClass('hovering')) {
 										$(this)
-											.stop(true)
 											.animate({
 												'opacity': 1
 											}, {
@@ -305,7 +304,6 @@
 								function () {
 									if ($(this).hasClass('active') && $(container).hasClass('hovering')) {
 										$(this)
-											.stop(true)
 											.css({
 												'opacity': 1
 											});
@@ -313,7 +311,7 @@
 										$(this)
 											.stop(true)
 											.css({
-												'opacity': 0
+												'opacity': 1
 											});
 									}
 								}
@@ -326,7 +324,7 @@
 			// Animation and class progression
 			function go(nextSlide) {
 				
-				switch (opts.animation) {
+				switch (opts.slideAnimation) {
 
 				case 'slide':
 					if (captions) {
@@ -347,13 +345,13 @@
 					$(slides)
 						.removeClass('active')
 						.css({
-							'z-index':1
+							'z-index': 1
 						});
 						
 					$(slides[nextSlide])
 						.addClass('active')
 						.css({
-							'z-index':2
+							'z-index': 2
 						});
 						
 					$('.stage', container)
@@ -391,7 +389,7 @@
 					$(slides)
 						.removeClass('active')
 						.css({
-							'z-index':1
+							'z-index': 1
 						})
 						.stop(true)
 						.animate(
@@ -406,7 +404,7 @@
 					$(slides[nextSlide])
 						.addClass('active')
 						.css({
-							'z-index':2
+							'z-index': 2
 						})
 						.stop(true)
 						.animate(
@@ -458,8 +456,11 @@
 						.css(
 							{
 								'opacity': 1
-							});
-							toggleCaptions(true);
+							}
+						);
+						
+					toggleCaptions(true);
+					
 					break;
 				}
 			}
@@ -552,8 +553,7 @@
 			$('.controls, .next, .prev, .caption', container)
 				.bind(
 					'click',
-					function (e) {
-						return false;
+					function (e) {						
 						e.stopPropagation();
 					}
 				);
@@ -575,11 +575,25 @@
 						$(this).addClass('hovering');
 						toggleCaptions(true);
 					}
+					
+					if ($(container).hasClass('clickable')) {
+						$(container)
+							.css({
+								'cursor': 'pointer'
+							});
+					}
 				}).mouseleave(function () {
 					if (opts.containerEvent[2]) {
 						startSlideshow();
 						$(this).removeClass('hovering');
 						toggleCaptions(false);
+					}
+					
+					if ($(container).hasClass('clickable')) {
+						$(container)
+							.css({
+								'cursor': 'text'
+							});
 					}
 				});
 				
@@ -614,7 +628,7 @@
 	
 	// Slideshow default options
 	$.fn.slideshow.defaults = {
-		animation: false, // Can be set to 'fade'(default) or 'slide', anything other than fade or slide will default to fade
+		autoplay: 2000,  // Autoplay speed; Use 0 to disable autoplay
 		autoSizeSlides: true, // Adds inline css to slides that matches the height and width of the container
 		captions: null, // Selector
 		captionAnimation: false,
@@ -623,8 +637,8 @@
 		controlEvent: true, // controls click/hover - true will require a control click to trigger control false will trigger on hover
 		loop: true, // Allows for the slideshow to cycle 
 		slideSelector: null, // By default the slideshow will transition all first level children, if you so desire you can pass a selector such as ".slide"
-		speed: 300, // Animation speed for slide progression
-		autoplay: 2000  // Autoplay speed; Use 0 to disable autoplay
+		slideAnimation: false, // Can be set to 'fade'(default) or 'slide', anything other than fade or slide will default to fade
+		speed: 300 // Animation speed for slide progression
 	};
 
 })(jQuery);
