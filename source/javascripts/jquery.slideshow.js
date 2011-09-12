@@ -448,14 +448,16 @@
 					$(slides)
 						.removeClass('active')
 						.css({
-							'opacity': 0
+							'opacity': 0,
+							'z-index': 1
 						});
 						
 					$(slides[nextSlide])
 						.addClass('active')
 						.css(
 							{
-								'opacity': 1
+								'opacity': 1,
+								'z-index': 2
 							}
 						);
 						
