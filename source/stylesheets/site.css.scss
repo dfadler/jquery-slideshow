@@ -1,48 +1,52 @@
 @import "compass";
 @import "compass/reset";
 @import "coderay.css.scss";
-@import "apple/*.png";
-$boxWidth:500px;
-$boxHeight:200px;
 
 body {
-	font:12px arial;
+	font:14px arial;
 	background:#333;
 	#main {
-		
+
 		width:750px;
 		padding:25px;;
 		margin:50px auto;
 		@include clearfix();
 		background:#FFF;
-		
+
 		h1 {
-			font-size:300%;
-			margin:0 0 25px;
+		font-size:300%;
+		margin:0 0 25px;
 		}
 	}
 }
 
 #content {
-  // float:left;
-  margin:50px 0;
-  color:white;
-  height:250px;
-  width:750px;
-  
-  .slide {
-   
-   .slide-content {
-     
-   }
-   
-  }
+	// float:left;
+	margin:50px 0;
+	color:white;
+	height:250px;
+	width:750px;
+
+	.slide {
+
+		.slide-content {
+			
+			.caption {
+				p {
+					padding:5px;
+				}
+			}
+		}
+	}
+
+}
 .control-panel {
 
 	.prev-container {
 		position:absolute;
 		top:-20px;
 		left:0;
+		
 		.prev {
 			font-size:14px;
 			color:black;
@@ -53,6 +57,7 @@ body {
 		}
 	}
 	.next, .prev {
+	
 		&.disabled {
 			display:none;
 		}
@@ -61,6 +66,7 @@ body {
 		position:absolute;
 		top:-20px;
 		left:40px;
+	
 		.next {
 			font-size:14px;
 			color:black;
@@ -71,38 +77,40 @@ body {
 		}
 	}
 
-    .controls {
-      padding:0;
-      margin:0;
-      font-size:14px;
-      background:black;
-      position:absolute;
-      bottom:-20px;
-      right:0;
-      .control {
-        list-style:none;
-        float:left;
+	.controls {
+		padding:0;
+		margin:0;
+		font-size:14px;
+		background:black;
+		position:absolute;
+		bottom:-20px;
+		right:0;
+	
+		.control {
+			 list-style:none;
+			 float:left;
 
-		&:hover {
-			cursor:pointer;	
+			&:hover {
+				cursor:pointer;	
+			}
+
+			&.active {
+
+				 span {
+				   color:white; 
+				 }
+
+			}
+		
+			span {
+				color:grey;
+				padding:5px;
+			}
 		}
-
-        &.active {
-          span {
-           color:white; 
-          }
-        }
-        span {
-          color:grey;
-          padding:5px;
-        }
-      }
-    }
-  }
+	}
 }
-
 #content-2, #content-3 {
-  	@extend #content;
+	@extend #content;
 }
 
 @import 'jquery.slideshow.css.scss';
