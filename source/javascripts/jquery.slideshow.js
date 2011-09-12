@@ -549,6 +549,18 @@
 
 		    startSlideshow();
 			
+			
+			// Toggle cursor pointer
+			function togglePointer(bol, obj) {
+				
+				bol = bol ? bol =  'pointer' : bol = 'text';
+				
+				$(obj)
+					.css({
+						'cursor': bol
+					});
+			}
+			
 			// Prevents control events from bubbling up
 			$('.controls, .next, .prev, .caption', container)
 				.bind(
@@ -577,10 +589,7 @@
 					}
 					
 					if ($(container).hasClass('clickable')) {
-						$(container)
-							.css({
-								'cursor': 'pointer'
-							});
+						togglePointer(true, this);
 					}
 				}).mouseleave(function () {
 					if (opts.containerEvent[2]) {
@@ -590,10 +599,7 @@
 					}
 					
 					if ($(container).hasClass('clickable')) {
-						$(container)
-							.css({
-								'cursor': 'text'
-							});
+						togglePointer(false, this);
 					}
 				});
 				

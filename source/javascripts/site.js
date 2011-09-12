@@ -14,6 +14,7 @@ $(function () {
 
 	$('#content')
 		.slideshow({
+			containerEvent: [false,true,true],
 			captionAnimation: 'slide',
 			captions: '.caption',
 			slideAnimation: 'fade',
